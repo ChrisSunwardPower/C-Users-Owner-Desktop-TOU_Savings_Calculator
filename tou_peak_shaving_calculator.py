@@ -7,7 +7,7 @@ TOU_RATES = {
 }
 
 # Battery kWh per unit
-BATTERY_KW_PER_UNIT = 10  # Continuous power output per battery (kW)
+BATTERY_KW_PER_UNIT = 15  # Peak power output per battery (kW)
 
 # Function to calculate max bill for battery coverage
 def max_bill_for_battery(battery_capacity, avg_rate):
