@@ -94,13 +94,13 @@ if st.button('Calculate Savings'):
     st.success(f"Yearly Savings: ${yearly_savings}")
     st.success(f"10-Year Savings: ${ten_year_savings}")
     st.success(f"15-Year Savings: ${fifteen_year_savings}")
-    st.info(f"Total Battery Capacity: {total_battery_kwh} kWh")
+    st.info(f"Total Battery Capacity: {total_battery_kwh} kW")
 
     # Display Alert if Bill Exceeds Battery Coverage
     if monthly_bill > max_bill:
-        st.warning(f"⚡ Warning: Your bill exceeds the coverage capacity of {battery_units} battery/batteries ({total_battery_kwh} kWh). You may need additional batteries to fully offset peak usage.")
+        st.warning(f"⚡ Warning: Your bill exceeds the coverage capacity of {battery_units} battery/batteries ({total_battery_kwh} kW). You may need additional batteries to fully offset peak usage.")
     else:
-        st.success(f"Your current bill is within the coverage capacity of {battery_units} battery/batteries ({total_battery_kwh} kWh).")
+        st.success(f"Your current bill is within the coverage capacity of {battery_units} battery/batteries ({total_battery_kwh} kW).")
 
 else:
     st.info('Enter the values and click "Calculate Savings" to see the result.')
