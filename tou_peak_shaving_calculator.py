@@ -70,15 +70,15 @@ def calculate_savings(monthly_bill, provider, battery_type, battery_units):
 
 # Streamlit UI
 st.set_page_config(page_title='TOU Peak Shaving Savings Calculator', layout='centered')
-st.title('TOU Peak Shaving Savings Calculator')
+st.title('Time of Use (TOU) Peak Shaving Savings Calculator')
 
-st.sidebar.header('Input Parameters')
-monthly_bill = st.sidebar.number_input('Monthly Bill ($)', min_value=0.0, value=200.0, step=1.0)
-provider = st.sidebar.selectbox('Select Utility Provider', ['PGE', 'Pacific Power'])
-battery_type = st.sidebar.selectbox('Select Battery Type', ['FranklinWH aPower 2', 'Tesla Powerwall 2'])
-battery_units = st.sidebar.selectbox('Number of Batteries', [1, 2, 3, 4, 5])
+st.header('Input Parameters')
+monthly_bill = st.number_input('Monthly Bill ($)', min_value=0.0, value=200.0, step=1.0)
+provider = st.selectbox('Select Utility Provider', ['PGE', 'Pacific Power'])
+battery_type = st.selectbox('Select Battery Type', ['FranklinWH aPower 2', 'Tesla Powerwall 2'])
+battery_units = st.selectbox('Number of Batteries', [1, 2, 3, 4, 5])
 
-if st.sidebar.button('Calculate Savings'):
+if st.button('Calculate Savings'):
     monthly_savings, yearly_savings, ten_year_savings, fifteen_year_savings, max_bill, battery_power, battery_peak, battery_storage = calculate_savings(
         monthly_bill, provider, battery_type, battery_units)
 
