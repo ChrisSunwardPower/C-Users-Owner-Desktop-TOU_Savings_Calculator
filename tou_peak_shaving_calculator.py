@@ -38,8 +38,8 @@ def calculate_savings(monthly_bill, provider, battery_units):
     savings = max(0, monthly_bill - new_bill)
 
     # Debugging Outputs
-    print(f"Peak kWh: {peak_kwh}")
-    print(f"Covered kWh: {covered_kwh}, Uncovered kWh: {uncovered_kwh}")
+    print(f"Monthly Bill: {monthly_bill}")
+    print(f"Peak kWh: {peak_kwh}, Covered kWh: {covered_kwh}, Uncovered kWh: {uncovered_kwh}")
     print(f"Covered Cost: ${covered_cost}, Uncovered Cost: ${uncovered_cost}")
     print(f"New Bill: ${new_bill}, Savings: ${savings}")
 
