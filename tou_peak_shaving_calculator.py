@@ -26,7 +26,7 @@ def calculate_savings(monthly_bill, provider, battery_units):
     covered_kwh = min(peak_kwh, total_battery_capacity)
     uncovered_kwh = max(0, peak_kwh - total_battery_capacity)
 
-    # Calculate Covered and Uncovered Costs
+    # Calculate Costs
     covered_cost = covered_kwh * off_peak_rate
     uncovered_cost = uncovered_kwh * peak_rate
 
@@ -34,14 +34,13 @@ def calculate_savings(monthly_bill, provider, battery_units):
     new_bill = off_peak_cost + covered_cost + uncovered_cost
 
     # Calculate Savings
-    savings = max(0, monthly_bill - new_bill)
+    savings = monthly_bill - new_bill
 
     # Debugging Outputs
-    print(f"Monthly Bill: ${monthly_bill}")
-    print(f"Peak Cost: ${peak_cost}, Off-Peak Cost: ${off_peak_cost}")
+    print(f"Monthly Bill: {monthly_bill}")
     print(f"Peak kWh: {peak_kwh}, Covered kWh: {covered_kwh}, Uncovered kWh: {uncovered_kwh}")
-    print(f"Covered Cost: ${covered_cost}, Uncovered Cost: ${uncovered_cost}")
-    print(f"New Bill: ${new_bill}, Savings: ${savings}")
+    print(f"Covered Cost: {covered_cost}, Uncovered Cost: {uncovered_cost}")
+    print(f"New Bill: {new_bill}, Savings: {savings}")
 
     # Warning for uncovered kWh
     if uncovered_kwh > 0:
