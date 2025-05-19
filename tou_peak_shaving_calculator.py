@@ -32,7 +32,7 @@ def calculate_savings(monthly_bill, provider, battery_units):
     battery_power_output = battery_units * BATTERY_KW_PER_UNIT
 
     # Calculate max bill for battery coverage
-    max_bill = max_bill_for_battery(battery_capacity, avg_rate)
+    max_bill = max_bill_for_battery(battery_power_output, avg_rate)
 
     # Assuming 30% of usage during peak hours
     peak_percentage = 30 / 100
