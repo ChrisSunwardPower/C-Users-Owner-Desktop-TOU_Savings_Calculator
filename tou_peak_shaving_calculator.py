@@ -2,10 +2,10 @@ import streamlit as st
 
 # Constants
 BATTERY_CAPACITY_KWH = 13.5
-PEAK_RATE_PGE = 0.19
-OFF_PEAK_RATE_PGE = 0.10
-PEAK_RATE_PACIFIC = 0.21
-OFF_PEAK_RATE_PACIFIC = 0.12
+PGE_PEAK_RATE = 0.4389
+PGE_OFF_PEAK_RATE = 0.0908
+PACIFIC_PEAK_RATE = 0.12
+PACIFIC_OFF_PEAK_RATE = 0.07
 
 # App Title
 st.title('Peak Shaving Savings Calculator')
@@ -13,28 +13,39 @@ st.title('Peak Shaving Savings Calculator')
 # User Inputs
 bill = st.number_input('Monthly Bill ($)', min_value=0.0, step=10.0, value=200.0)
 provider = st.selectbox('Select Utility Provider', ['PGE', 'Pacific Power'])
-batteries = st.number_input('Number of Batteries', min_value=0, step=1, value=1)
 
 # Determine Rates
 if provider == 'PGE':
-    peak_rate = PEAK_RATE_PGE
-    off_peak_rate = OFF_PEAK_RATE_PGE
+    peak_rate = PGE_PEAK_RATE
+    off_peak_rate = PGE_OFF_PEAK_RATE
 else:
-    peak_rate = PEAK_RATE_PACIFIC
-    off_peak_rate = OFF_PEAK_RATE_PACIFIC
+    peak_rate = PACIFIC_PEAK_RATE
+    off_peak_rate = PACIFIC_OFF_PEAK_RATE
+
+# Calculate Peak and Off-Peak Usage
+peak_cost = bill * 0.30
+off_peak_cost = bill * 0.70
+
+# Calculate On-Peak kWh
+on_peak_kwh = peak_cost / peak_rate
+
+# Battery Coverage
+battery_capacity = BATTERY_CAPACITY_KWH
+peak_kwh_per_day = on_peak_kwh / 30
+
+# Check if Battery Covers All Peak Usage
+if peak_kwh_per_day <= battery_capacity:
+    # All peak usage covered
+    total_kwh = (on_peak_kwh + off_peak_cost / off_peak_rate)
+else:
+    # Partial coverage
+    total_kwh = (battery_capacity * 30) + (off_peak_cost / off_peak_rate)
+
+# New Bill Calculation
+new_bill = total_kwh * off_peak_rate
 
 # Calculate Savings
-peak_usage = bill * 0.30
-off_peak_usage = bill * 0.70
-on_peak_kwh = peak_usage / peak_rate
-off_peak_kwh = off_peak_usage / off_peak_rate
-
-# Calculate Battery Capacity
-battery_capacity = batteries * BATTERY_CAPACITY_KWH
-on_peak_kwh -= min(on_peak_kwh, battery_capacity)
-
-# Recalculate Savings
-monthly_savings = (on_peak_kwh * peak_rate) - (on_peak_kwh * off_peak_rate)
+monthly_savings = bill - new_bill
 annual_savings = monthly_savings * 12
 ten_year_savings = annual_savings * 10
 fifteen_year_savings = annual_savings * 15
