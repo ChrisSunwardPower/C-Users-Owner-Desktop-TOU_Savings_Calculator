@@ -7,7 +7,7 @@ TOU_RATES = {
 }
 
 # Battery kWh per unit
-BATTERY_KWH_PER_UNIT = 15
+BATTERY_KW_PER_UNIT = 15
 
 # Function to calculate max bill for battery coverage
 def max_bill_for_battery(battery_capacity, avg_rate):
@@ -29,7 +29,7 @@ def calculate_savings(monthly_bill, provider, battery_units):
     avg_rate = (peak_rate * 0.3) + (off_peak_rate * 0.7)
 
     # Battery Capacity in kWh
-    battery_capacity = battery_units * BATTERY_KWH_PER_UNIT
+    battery_capacity = battery_units * BATTERY_KW_PER_UNIT
 
     # Calculate max bill for battery coverage
     max_bill = max_bill_for_battery(battery_capacity, avg_rate)
@@ -89,18 +89,18 @@ battery_units = st.selectbox('Number of Batteries (1 Battery = 15 kWh)', [1, 2, 
 if st.button('Calculate Savings'):
     monthly_savings, yearly_savings, ten_year_savings, fifteen_year_savings, max_bill = calculate_savings(monthly_bill, provider, battery_units)
 
-    total_battery_kwh = battery_units * BATTERY_KWH_PER_UNIT
+    total_battery_kw = battery_units * BATTERY_KW_PER_UNIT
     st.success(f"Monthly Savings: ${monthly_savings}")
     st.success(f"Yearly Savings: ${yearly_savings}")
     st.success(f"10-Year Savings: ${ten_year_savings}")
     st.success(f"15-Year Savings: ${fifteen_year_savings}")
-    st.info(f"Total Battery Capacity: {total_battery_kwh} kW")
+    st.info(f"Total Battery Capacity: {total_battery_kw} kW")
 
     # Display Alert if Bill Exceeds Battery Coverage
     if monthly_bill > max_bill:
-        st.warning(f"⚡ Warning: Your bill exceeds the coverage capacity of {battery_units} battery/batteries ({total_battery_kwh} kW). You may need additional batteries to fully offset peak usage.")
+        st.warning(f"⚡ Warning: Your bill exceeds the coverage capacity of {battery_units} battery/batteries ({total_battery_kw} kW). You may need additional batteries to fully offset peak usage.")
     else:
-        st.success(f"Your current bill is within the coverage capacity of {battery_units} battery/batteries ({total_battery_kwh} kW).")
+        st.success(f"Your current bill is within the coverage capacity of {battery_units} battery/batteries ({total_battery_kw} kW).")
 
 else:
     st.info('Enter the values and click "Calculate Savings" to see the result.')
