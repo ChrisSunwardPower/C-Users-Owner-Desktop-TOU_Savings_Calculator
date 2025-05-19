@@ -30,19 +30,23 @@ off_peak_cost = bill * 0.70
 on_peak_kwh = peak_cost / peak_rate
 
 # Battery Coverage
-battery_capacity = BATTERY_CAPACITY_KWH
 peak_kwh_per_day = on_peak_kwh / 30
 
 # Check if Battery Covers All Peak Usage
-if peak_kwh_per_day <= battery_capacity:
-    # All peak usage covered
-    total_kwh = (on_peak_kwh + off_peak_cost / off_peak_rate)
+if peak_kwh_per_day > BATTERY_CAPACITY_KWH:
+    st.warning("Warning: Peak kWh exceeds battery capacity. Consider additional storage.")
+    # Calculate the uncovered kWh
+    uncovered_kwh = peak_kwh_per_day - BATTERY_CAPACITY_KWH
+    # Calculate the cost for uncovered kWh at peak rate
+    uncovered_cost = uncovered_kwh * 30 * peak_rate
 else:
-    # Partial coverage
-    total_kwh = (battery_capacity * 30) + (off_peak_cost / off_peak_rate)
+    uncovered_cost = 0
+
+# Recalculate Total kWh as Off-Peak
+total_kwh = (on_peak_kwh - uncovered_kwh) + (off_peak_cost / off_peak_rate)
 
 # New Bill Calculation
-new_bill = total_kwh * off_peak_rate
+new_bill = total_kwh * off_peak_rate + uncovered_cost
 
 # Calculate Savings
 monthly_savings = bill - new_bill
