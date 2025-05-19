@@ -9,7 +9,7 @@ TOU_RATES = {
 # Battery Capacity in kWh
 BATTERY_CAPACITY_KWH = 13.5
 
-# Simple Savings Calculation with 100% Peak Coverage
+# Calculate Savings with Full Peak Coverage
 
 def calculate_savings(monthly_bill, provider):
     rates = TOU_RATES[provider]
@@ -25,7 +25,7 @@ def calculate_savings(monthly_bill, provider):
     off_peak_kwh = off_peak_cost / off_peak_rate
     total_kwh = peak_kwh + off_peak_kwh
 
-    # Recalculate Peak Cost at Off-Peak Rate
+    # Recalculate Peak Cost at Off-Peak Rate (Full Coverage)
     adjusted_peak_cost = peak_kwh * off_peak_rate
 
     # New bill calculation
