@@ -80,13 +80,13 @@ st.title('TOU Peak Shaving Savings Calculator')
 st.write('Calculate potential savings by using a battery system to shift peak usage to off-peak hours.')
 
 # Input fields
-st.sidebar.header('Input Parameters')
-monthly_bill = st.sidebar.number_input('Monthly Bill ($)', min_value=0.0, value=200.0, step=1.0)
-provider = st.sidebar.selectbox('Select Utility Provider', ['PGE', 'Pacific Power'])
-battery_units = st.sidebar.selectbox('Number of Batteries (1 Battery = 15 kWh)', [1, 2, 3, 4, 5])
+st.header('Input Parameters')
+monthly_bill = st.number_input('Monthly Bill ($)', min_value=0.0, value=200.0, step=1.0)
+provider = st.selectbox('Select Utility Provider', ['PGE', 'Pacific Power'])
+battery_units = st.selectbox('Number of Batteries (1 Battery = 15 kWh)', [1, 2, 3, 4, 5])
 
 # Calculate button
-if st.sidebar.button('Calculate Savings'):
+if st.button('Calculate Savings'):
     monthly_savings, yearly_savings, ten_year_savings, fifteen_year_savings, max_bill = calculate_savings(monthly_bill, provider, battery_units)
 
     total_battery_kwh = battery_units * BATTERY_KWH_PER_UNIT
