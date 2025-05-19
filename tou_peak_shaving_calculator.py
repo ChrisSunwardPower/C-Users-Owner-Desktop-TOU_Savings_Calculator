@@ -19,6 +19,7 @@ if provider == 'PGE':
     peak_rate = PGE_PEAK_RATE
     off_peak_rate = PGE_OFF_PEAK_RATE
 else:
+    uncovered_cost = 0
     peak_rate = PACIFIC_PEAK_RATE
     off_peak_rate = PACIFIC_OFF_PEAK_RATE
 
@@ -33,17 +34,20 @@ on_peak_kwh = peak_cost / peak_rate
 peak_kwh_per_day = on_peak_kwh / 30
 
 # Check if Battery Covers All Peak Usage
-uncovered_kwh = 0  # Default value to prevent undefined variable error  # Default value to prevent undefined variable error
+uncovered_kwh = 0  # Default value to prevent undefined variable error
 if on_peak_kwh > (BATTERY_CAPACITY_KWH * 30):
     uncovered_kwh = on_peak_kwh - (BATTERY_CAPACITY_KWH * 30)
-    st.warning(f"Warning: Peak usage of {on_peak_kwh:.2f} kWh exceeds battery capacity of {BATTERY_CAPACITY_KWH * 30} kWh. The battery can only offset up to {BATTERY_CAPACITY_KWH * 30} kWh, leaving {uncovered_kwh:.2f} kWh uncovered and billed at the peak rate.")
     uncovered_cost = uncovered_kwh * peak_rate
-uncovered_kwh = on_peak_kwh - (BATTERY_CAPACITY_KWH * 30)
-st.warning(f"Warning: Peak usage of {on_peak_kwh:.2f} kWh exceeds battery capacity of {BATTERY_CAPACITY_KWH * 30} kWh. The battery can only offset up to {BATTERY_CAPACITY_KWH * 30} kWh, leaving {uncovered_kwh:.2f} kWh uncovered and billed at the peak rate.")
-# Calculate the uncovered kWh
-    uncovered_kwh = on_peak_kwh - (BATTERY_CAPACITY_KWH * 30)
+    st.warning(f"Warning: Peak usage of {on_peak_kwh:.2f} kWh exceeds battery capacity of {BATTERY_CAPACITY_KWH * 30} kWh. The battery can only offset up to {BATTERY_CAPACITY_KWH * 30} kWh, leaving {uncovered_kwh:.2f} kWh uncovered and billed at the peak rate.")
+    
+    
+    
+
+
+
+    
 # Calculate the cost for uncovered kWh at peak rate
-uncovered_cost = uncovered_kwh * peak_rate
+
 else:
     uncovered_cost = 0
 
