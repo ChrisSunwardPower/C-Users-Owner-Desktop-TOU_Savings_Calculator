@@ -1,63 +1,47 @@
 import streamlit as st
 
-# Utility Rates
-TOU_RATES = {
-    'PGE': {'peak_rate': 0.28, 'off_peak_rate': 0.10},
-    'Pacific Power': {'peak_rate': 0.32, 'off_peak_rate': 0.12}
-}
-
-# Battery Capacity in kWh
+# Constants
 BATTERY_CAPACITY_KWH = 13.5
+PEAK_RATE_PGE = 0.19
+OFF_PEAK_RATE_PGE = 0.10
+PEAK_RATE_PACIFIC = 0.21
+OFF_PEAK_RATE_PACIFIC = 0.12
 
-# Calculate Savings with Full Peak Coverage
+# App Title
+st.title('Peak Shaving Savings Calculator')
 
-def calculate_savings(monthly_bill, provider):
-    rates = TOU_RATES[provider]
-    peak_rate = rates['peak_rate']
-    off_peak_rate = rates['off_peak_rate']
-
-    # Bill breakdown
-    peak_cost = monthly_bill * 0.3
-    off_peak_cost = monthly_bill * 0.7
-
-    # Calculate kWh for peak and off-peak
-    peak_kwh = peak_cost / peak_rate
-    off_peak_kwh = off_peak_cost / off_peak_rate
-    total_kwh = peak_kwh + off_peak_kwh
-
-    # Recalculate Peak Cost at Off-Peak Rate (Full Coverage)
-    adjusted_peak_cost = peak_kwh * off_peak_rate
-
-    # New bill calculation
-    new_bill = off_peak_cost + adjusted_peak_cost
-    savings = monthly_bill - new_bill
-
-    # Debugging Outputs
-    print(f"Monthly Bill: {monthly_bill}")
-    print(f"Peak kWh: {peak_kwh}, Off-Peak kWh: {off_peak_kwh}")
-    print(f"Adjusted Peak Cost: ${adjusted_peak_cost}")
-    print(f"New Bill: ${new_bill}, Savings: ${savings}")
-
-    return round(savings, 2), round(savings * 12, 2), round(savings * 120, 2), round(savings * 180, 2), peak_kwh
-
-st.set_page_config(page_title='TOU Savings Calculator', layout='centered')
-st.title('TOU Peak Shaving Savings Calculator')
-
-monthly_bill = st.number_input('Monthly Bill ($)', min_value=0.0, value=200.0, step=10.0)
+# User Inputs
+bill = st.number_input('Monthly Bill ($)', min_value=0.0, step=10.0, value=200.0)
 provider = st.selectbox('Select Utility Provider', ['PGE', 'Pacific Power'])
-battery_units = st.selectbox('Number of Batteries', [1, 2, 3, 4, 5])
+batteries = st.number_input('Number of Batteries', min_value=0, step=1, value=1)
 
-if st.button('Calculate Savings'):
-    savings, annual, ten_year, fifteen_year, peak_kwh = calculate_savings(monthly_bill, provider)
-    st.subheader('Savings Breakdown')
-    st.subheader('Savings Breakdown')
-st.write(f"Monthly Savings: ${savings}")
-st.write(f"Annual Savings: ${annual}")
-st.write(f"10-Year Savings: ${ten_year}")
-st.write(f"15-Year Savings: ${fifteen_year}")
+# Determine Rates
+if provider == 'PGE':
+    peak_rate = PEAK_RATE_PGE
+    off_peak_rate = OFF_PEAK_RATE_PGE
+else:
+    peak_rate = PEAK_RATE_PACIFIC
+    off_peak_rate = OFF_PEAK_RATE_PACIFIC
 
-    # Battery Disclaimer
-    total_battery_capacity = battery_units * BATTERY_CAPACITY_KWH
-    if total_battery_capacity < peak_kwh:
-        uncovered_kwh = peak_kwh - total_battery_capacity
-        st.warning(f"Your battery capacity covers {total_battery_capacity} kWh of peak usage. {uncovered_kwh:.2f} kWh will still be billed at the peak rate.")
+# Calculate Savings
+peak_usage = bill * 0.30
+off_peak_usage = bill * 0.70
+on_peak_kwh = peak_usage / peak_rate
+off_peak_kwh = off_peak_usage / off_peak_rate
+
+# Calculate Battery Capacity
+battery_capacity = batteries * BATTERY_CAPACITY_KWH
+on_peak_kwh -= min(on_peak_kwh, battery_capacity)
+
+# Recalculate Savings
+monthly_savings = (on_peak_kwh * peak_rate) - (on_peak_kwh * off_peak_rate)
+annual_savings = monthly_savings * 12
+ten_year_savings = annual_savings * 10
+fifteen_year_savings = annual_savings * 15
+
+# Display Savings
+st.subheader('Savings Overview')
+st.write(f'Monthly Savings: ${monthly_savings:.2f}')
+st.write(f'Annual Savings: ${annual_savings:.2f}')
+st.write(f'10-Year Savings: ${ten_year_savings:.2f}')
+st.write(f'15-Year Savings: ${fifteen_year_savings:.2f}')
