@@ -18,32 +18,49 @@ off_peak_rate = selected_rates['off_peak_rate']
 # Battery Capacity
 battery_capacity = 13.5  # kWh per battery
 
+# Calculation Function
 def calculate_savings(monthly_bill, peak_rate, off_peak_rate, batteries):
-    # Calculate Peak and Off-Peak Usage
-    peak_usage_kwh = (monthly_bill * 0.3) / peak_rate
-    off_peak_usage_kwh = (monthly_bill * 0.7) / off_peak_rate
+    # Determine kWhs during Peak and Off-Peak Hours
+    peak_bill_amount = monthly_bill * 0.3
+    off_peak_bill_amount = monthly_bill * 0.7
 
-    # Battery Coverage
-    max_off_peak_coverage = batteries * battery_capacity
-    peak_covered_kwh = min(peak_usage_kwh, max_off_peak_coverage)
-    remaining_peak_kwh = peak_usage_kwh - peak_covered_kwh
+    # Calculate kWh for Peak and Off-Peak
+    peak_kwh = peak_bill_amount / peak_rate
+    off_peak_kwh = off_peak_bill_amount / off_peak_rate
 
-    # Recalculate based on battery coverage
-    total_off_peak_kwh = off_peak_usage_kwh + peak_covered_kwh
-    total_billable_kwh = total_off_peak_kwh + remaining_peak_kwh
-    off_peak_bill = total_off_peak_kwh * off_peak_rate
-    peak_bill = remaining_peak_kwh * peak_rate
+    # Determine Battery Coverage
+    max_battery_coverage = batteries * battery_capacity
+    if peak_kwh > max_battery_coverage:
+        peak_kwh_covered = max_battery_coverage
+        peak_kwh_remaining = peak_kwh - max_battery_coverage
+    else:
+        peak_kwh_covered = peak_kwh
+        peak_kwh_remaining = 0
+
+    # Calculate Adjusted Billable kWh
+    adjusted_off_peak_kwh = off_peak_kwh + peak_kwh_covered
+    adjusted_peak_kwh = peak_kwh_remaining
 
     # Calculate Savings
-    total_bill = peak_bill + off_peak_bill
-    savings = monthly_bill - total_bill
+    adjusted_off_peak_bill = adjusted_off_peak_kwh * off_peak_rate
+    adjusted_peak_bill = adjusted_peak_kwh * peak_rate
+    adjusted_total_bill = adjusted_off_peak_bill + adjusted_peak_bill
+
+    # Calculate Savings
+    savings = monthly_bill - adjusted_total_bill
 
     return savings, savings * 12, savings * 120, savings * 180
 
+# Calculate Savings
 monthly_savings, annual_savings, ten_year_savings, fifteen_year_savings = calculate_savings(monthly_bill, peak_rate, off_peak_rate, batteries)
 
-# Display Savings
+# Display Results
+st.subheader("TOU Peak Shaving Savings Calculator")
+st.write(f"Monthly Bill: ${monthly_bill}")
+st.write(f"Provider: {provider}")
+st.write(f"Batteries: {batteries}")
 st.write(f"Peak Rate: ${peak_rate}/kWh, Off-Peak Rate: ${off_peak_rate}/kWh")
+
 st.subheader("Savings Breakdown")
 st.write(f"Monthly Savings: ${monthly_savings:.2f}")
 st.write(f"Annual Savings: ${annual_savings:.2f}")
