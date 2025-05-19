@@ -9,14 +9,14 @@ TOU_RATES = {
 # Battery Capacity in kWh
 BATTERY_CAPACITY_KWH = 13.5
 
-# Calculate Savings
+# Simple Savings Calculation with 100% Peak Coverage
 
-def calculate_savings(monthly_bill, provider, battery_units):
+def calculate_savings(monthly_bill, provider):
     rates = TOU_RATES[provider]
     peak_rate = rates['peak_rate']
     off_peak_rate = rates['off_peak_rate']
 
-    # Calculate 30% of the bill as peak cost
+    # Bill breakdown
     peak_cost = monthly_bill * 0.3
     off_peak_cost = monthly_bill * 0.7
 
@@ -25,25 +25,20 @@ def calculate_savings(monthly_bill, provider, battery_units):
     off_peak_kwh = off_peak_cost / off_peak_rate
     total_kwh = peak_kwh + off_peak_kwh
 
-    # Battery Coverage Calculation
-    total_battery_capacity = battery_units * BATTERY_CAPACITY_KWH
-    covered_kwh = min(peak_kwh, total_battery_capacity)
-    uncovered_kwh = max(0, peak_kwh - total_battery_capacity)
-
-    # Calculate Costs
-    covered_cost = covered_kwh * off_peak_rate
-    uncovered_cost = uncovered_kwh * peak_rate
-    new_peak_cost = covered_cost + uncovered_cost
+    # Recalculate Peak Cost at Off-Peak Rate
+    adjusted_peak_cost = peak_kwh * off_peak_rate
 
     # New bill calculation
-    new_bill = off_peak_cost + new_peak_cost
-    savings = max(0, monthly_bill - new_bill)
+    new_bill = off_peak_cost + adjusted_peak_cost
+    savings = monthly_bill - new_bill
 
-    # Battery Warning
-    if uncovered_kwh > 0:
-        st.warning(f"{uncovered_kwh:.2f} kWh will be billed at the peak rate. Consider adding more batteries.")
+    # Debugging Outputs
+    print(f"Monthly Bill: {monthly_bill}")
+    print(f"Peak kWh: {peak_kwh}, Off-Peak kWh: {off_peak_kwh}")
+    print(f"Adjusted Peak Cost: ${adjusted_peak_cost}")
+    print(f"New Bill: ${new_bill}, Savings: ${savings}")
 
-    return round(savings, 2), round(savings * 12, 2), round(savings * 120, 2), round(savings * 180, 2)
+    return round(savings, 2), round(savings * 12, 2), round(savings * 120, 2), round(savings * 180, 2), peak_kwh
 
 st.set_page_config(page_title='TOU Savings Calculator', layout='centered')
 st.title('TOU Peak Shaving Savings Calculator')
@@ -53,6 +48,12 @@ provider = st.selectbox('Select Utility Provider', ['PGE', 'Pacific Power'])
 battery_units = st.selectbox('Number of Batteries', [1, 2, 3, 4, 5])
 
 if st.button('Calculate Savings'):
-    savings, annual, ten_year, fifteen_year = calculate_savings(monthly_bill, provider, battery_units)
+    savings, annual, ten_year, fifteen_year, peak_kwh = calculate_savings(monthly_bill, provider)
     st.subheader('Savings Breakdown')
     st.write(f"Monthly: ${savings}, Annual: ${annual}, 10-Year: ${ten_year}, 15-Year: ${fifteen_year}")
+
+    # Battery Disclaimer
+    total_battery_capacity = battery_units * BATTERY_CAPACITY_KWH
+    if total_battery_capacity < peak_kwh:
+        uncovered_kwh = peak_kwh - total_battery_capacity
+        st.warning(f"Your battery capacity covers {total_battery_capacity} kWh of peak usage. {uncovered_kwh:.2f} kWh will still be billed at the peak rate.")
