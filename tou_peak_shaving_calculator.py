@@ -113,7 +113,7 @@ st.info(f"Total Battery Storage Capacity: {battery_storage_capacity} kWh")
 
     # Display Alert if Bill Exceeds Battery Coverage
 if monthly_bill > max_bill:
-        st.warning(f"⚡ Warning: Your bill exceeds the coverage capacity of {battery_units} {battery_type}(s). {battery_power_output} kW continuous, {battery_peak_output} kW peak, {battery_storage_capacity} kWh total storage.")) You may need additional batteries to fully offset peak usage.")
+        st.warning(f"⚡ Warning: Your bill exceeds the coverage capacity of {battery_units} {battery_type}(s). {battery_power_output} kW continuous, {battery_peak_output} kW peak, {battery_storage_capacity} kWh total storage. You may need additional batteries to fully offset peak usage.") You may need additional batteries to fully offset peak usage.")
     else:
         st.success(f"Your current bill is within the coverage capacity of {battery_units} {battery_type}(s). {battery_power_output} kW continuous, {battery_peak_output} kW peak, {battery_storage_capacity} kWh total storage.")
 
