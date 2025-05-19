@@ -48,7 +48,16 @@ def calculate_savings(monthly_bill, provider, battery_type, battery_units):
     cost_without_battery = (peak_kwh * peak_rate) + (off_peak_kwh * off_peak_rate)
 
     # Costs with battery
-    cost_with_battery = (remaining_peak_kwh * peak_rate) + (off_peak_kwh * off_peak_rate) + (battery_coverage_kwh * off_peak_rate)
+        # Adjust for partial peak coverage
+    if battery_coverage_kwh < peak_kwh:
+        # Portion covered by battery at off-peak rate
+        covered_kwh = battery_coverage_kwh
+        remaining_peak_kwh = peak_kwh - covered_kwh
+        cost_with_battery = (remaining_peak_kwh * peak_rate) + (off_peak_kwh * off_peak_rate) + (covered_kwh * off_peak_rate)
+        st.warning("Battery capacity insufficient to fully cover peak usage. Remaining peak usage billed at peak rate.")
+    else:
+        # Full coverage by battery
+        cost_with_battery = (remaining_peak_kwh * peak_rate) + (off_peak_kwh * off_peak_rate) + (battery_coverage_kwh * off_peak_rate)
 
     # Adjust savings if battery does not fully cover peak usage
     if battery_coverage_kwh < peak_kwh:
