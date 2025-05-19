@@ -26,6 +26,7 @@ def calculate_savings(monthly_bill, provider, battery_type, battery_units):
 
     # Determine kWh for peak usage
     peak_kwh = peak_cost / peak_rate
+    off_peak_kwh = off_peak_cost / off_peak_rate
 
     # Get battery specs
     battery = BATTERY_SPECS[battery_type]
@@ -44,7 +45,7 @@ def calculate_savings(monthly_bill, provider, battery_type, battery_units):
         remaining_peak_kwh = uncovered_kwh
 
     # New bill calculation
-    new_bill = off_peak_cost + new_peak_cost
+    new_bill = (off_peak_kwh * off_peak_rate) + new_peak_cost
 
     # Calculate savings
     savings = monthly_bill - new_bill
@@ -56,32 +57,3 @@ def calculate_savings(monthly_bill, provider, battery_type, battery_units):
     fifteen_year_savings = annual_savings * 15
 
     return round(savings, 2), round(annual_savings, 2), round(ten_year_savings, 2), round(fifteen_year_savings, 2), remaining_peak_kwh
-
-# Streamlit UI
-st.set_page_config(page_title='TOU Peak Shaving Calculator', layout='centered')
-st.title('Time of Use (TOU) Peak Shaving Savings Calculator')
-
-# Input Section
-st.header('Enter Your Information')
-monthly_bill = st.number_input('Monthly Bill ($)', min_value=0.0, value=200.0, step=10.0, key='monthly_bill_input')
-provider = st.selectbox('Select Utility Provider', ['PGE', 'Pacific Power'], key='provider_input')
-battery_type = st.selectbox('Select Battery Type', ['FranklinWH aPower 2', 'Tesla Powerwall 2'], key='battery_type_input')
-battery_units = st.selectbox('Number of Batteries', [1, 2, 3, 4, 5], key='battery_units_input')
-
-# Calculate Savings
-if st.button('Calculate Savings', key='calculate_button'):
-    savings, annual_savings, ten_year_savings, fifteen_year_savings, remaining_peak_kwh = calculate_savings(
-        monthly_bill, provider, battery_type, battery_units)
-
-    # Output Section
-    st.subheader('Savings Breakdown')
-    st.write(f"Monthly Savings: ${savings}")
-    st.write(f"Annual Savings: ${annual_savings}")
-    st.write(f"10-Year Savings: ${ten_year_savings}")
-    st.write(f"15-Year Savings: ${fifteen_year_savings}")
-
-    # Warning for uncovered peak usage
-    if remaining_peak_kwh > 0:
-        st.warning(f"⚡ Battery capacity is insufficient to cover {remaining_peak_kwh} kWh of peak usage, which will be billed at the peak rate.")
-else:
-    st.info('Enter your information and click "Calculate Savings" to see the results.')
