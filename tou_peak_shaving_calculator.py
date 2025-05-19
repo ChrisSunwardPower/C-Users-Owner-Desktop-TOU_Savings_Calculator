@@ -31,13 +31,13 @@ def calculate_savings(monthly_bill, provider, battery_type, battery_units):
     battery = BATTERY_SPECS[battery_type]
     battery_storage = battery['storage_kwh'] * battery_units
 
-    # Determine battery coverage
+    # Check battery coverage
     if battery_storage >= peak_kwh:
-        # Full coverage: Rebill peak usage at off-peak rate
+        # Battery fully covers peak usage, rebill at off-peak rate
         new_peak_cost = peak_kwh * off_peak_rate
-        remaining_peak_kwh = 0
+        remaining_peak_kwh = 0  # All peak usage is covered
     else:
-        # Partial coverage: Split billing
+        # Partial coverage: Battery covers only part of peak usage
         covered_kwh = battery_storage
         uncovered_kwh = peak_kwh - covered_kwh
         new_peak_cost = (covered_kwh * off_peak_rate) + (uncovered_kwh * peak_rate)
@@ -46,7 +46,7 @@ def calculate_savings(monthly_bill, provider, battery_type, battery_units):
     # New bill calculation
     new_bill = off_peak_cost + new_peak_cost
 
-    # Savings calculation
+    # Calculate savings
     savings = monthly_bill - new_bill
     savings = max(0, savings)
 
