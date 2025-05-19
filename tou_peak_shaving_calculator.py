@@ -9,6 +9,8 @@ TOU_RATES = {
 # Battery Capacity in kWh
 BATTERY_CAPACITY_KWH = 13.5
 
+# Calculate Savings
+
 def calculate_savings(monthly_bill, provider, battery_units):
     rates = TOU_RATES[provider]
     peak_rate = rates['peak_rate']
@@ -23,24 +25,21 @@ def calculate_savings(monthly_bill, provider, battery_units):
     off_peak_kwh = off_peak_cost / off_peak_rate
     total_kwh = peak_kwh + off_peak_kwh
 
-    # Calculate potential savings if all kWh were billed at the off-peak rate
-    potential_savings = total_kwh * off_peak_rate
-    max_savings = monthly_bill - potential_savings
+    # Potential savings if 100% of peak is covered by battery
+    potential_savings = (peak_kwh * peak_rate) - (peak_kwh * off_peak_rate)
 
     # Calculate battery coverage
     total_battery_capacity = battery_units * BATTERY_CAPACITY_KWH
     covered_kwh = min(peak_kwh, total_battery_capacity)
     uncovered_kwh = max(0, peak_kwh - total_battery_capacity)
 
-    # Calculate covered and uncovered costs
+    # Calculate costs
     covered_cost = covered_kwh * off_peak_rate
     uncovered_cost = uncovered_kwh * peak_rate
-
-    # Calculate the adjusted bill
     new_peak_cost = covered_cost + uncovered_cost
-    new_bill = off_peak_cost + new_peak_cost
 
-    # Calculate savings based on battery coverage
+    # New bill calculation
+    new_bill = off_peak_cost + new_peak_cost
     savings = max(0, monthly_bill - new_bill)
 
     # Debugging Outputs
@@ -60,10 +59,4 @@ st.set_page_config(page_title='TOU Savings Calculator', layout='centered')
 st.title('TOU Peak Shaving Savings Calculator')
 
 monthly_bill = st.number_input('Monthly Bill ($)', min_value=0.0, value=200.0, step=10.0)
-provider = st.selectbox('Select Utility Provider', ['PGE', 'Pacific Power'])
-battery_units = st.selectbox('Number of Batteries', [1, 2, 3, 4, 5])
-
-if st.button('Calculate Savings'):
-    savings, annual, ten_year, fifteen_year = calculate_savings(monthly_bill, provider, battery_units)
-    st.subheader('Savings Breakdown')
-    st.write(f"Monthly: ${savings}, Annual: ${annual}, 10-Year: ${ten_year}, 15-Year: ${fifteen_year}")
+provider = st.selectbox('Selec
