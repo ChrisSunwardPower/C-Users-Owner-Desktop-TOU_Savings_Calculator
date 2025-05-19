@@ -33,6 +33,7 @@ on_peak_kwh = peak_cost / peak_rate
 peak_kwh_per_day = on_peak_kwh / 30
 
 # Check if Battery Covers All Peak Usage
+uncovered_kwh = 0  # Default value to prevent undefined variable error
 if peak_kwh_per_day > BATTERY_CAPACITY_KWH:
     st.warning("Warning: Peak kWh exceeds battery capacity. Consider additional storage.")
     # Calculate the uncovered kWh
