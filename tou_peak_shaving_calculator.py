@@ -61,15 +61,14 @@ st.title('Time of Use (TOU) Peak Shaving Savings Calculator')
 
 # Input Section
 st.header('Enter Your Information')
-monthly_bill = st.number_input('Monthly Bill ($)', min_value=0.0, value=200.0, step=10.0)
-provider = st.selectbox('Select Utility Provider', ['PGE', 'Pacific Power'], key='provider')
-battery_type = st.selectbox('Select Battery Type', ['FranklinWH aPower 2', 'Tesla Powerwall 2'], key='battery_type')
-battery_units = st.selectbox('Number of Batteries', [1, 2, 3, 4, 5], key='battery_units')
-battery_type = st.selectbox('Select Battery Type', ['FranklinWH aPower 2', 'Tesla Powerwall 2'], key='battery_type')
-battery_units = st.selectbox('Number of Batteries', [1, 2, 3, 4, 5], key='battery_units')
+with st.container():
+    monthly_bill = st.number_input('Monthly Bill ($)', min_value=0.0, value=200.0, step=10.0, key='monthly_bill_input')
+    provider = st.selectbox('Select Utility Provider', ['PGE', 'Pacific Power'], key='provider_input')
+    battery_type = st.selectbox('Select Battery Type', ['FranklinWH aPower 2', 'Tesla Powerwall 2'], key='battery_type_input')
+    battery_units = st.selectbox('Number of Batteries', [1, 2, 3, 4, 5], key='battery_units_input')
 
 # Calculate Savings
-if st.button('Calculate Savings'):
+if st.button('Calculate Savings', key='calculate_button'):
     savings, annual_savings, ten_year_savings, fifteen_year_savings = calculate_savings(monthly_bill, provider, battery_type, battery_units)
 
     # Output Section
