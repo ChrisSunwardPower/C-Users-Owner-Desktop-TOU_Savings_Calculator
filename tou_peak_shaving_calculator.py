@@ -7,7 +7,7 @@ TOU_RATES = {
 }
 
 # Battery kWh per unit
-BATTERY_KW_PER_UNIT = 15  # Peak power output per battery (kW)
+
 
 # Function to calculate max bill for battery coverage
 def max_bill_for_battery(battery_capacity, avg_rate):
@@ -29,7 +29,7 @@ def calculate_savings(monthly_bill, provider, battery_units):
     avg_rate = (peak_rate * 0.3) + (off_peak_rate * 0.7)
 
     # Battery Capacity in kWh
-    battery_power_output = battery_units * BATTERY_KW_PER_UNIT
+    
 
     # Calculate max bill for battery coverage
     max_bill = max_bill_for_battery(battery_power_output, avg_rate)
@@ -83,24 +83,39 @@ st.write('Calculate potential savings by using a battery system to shift peak us
 st.header('Input Parameters')
 monthly_bill = st.number_input('Monthly Bill ($)', min_value=0.0, value=200.0, step=1.0)
 provider = st.selectbox('Select Utility Provider', ['PGE', 'Pacific Power'])
+battery_type = st.selectbox('Select Battery Type', ['FranklinWH aPower 2', 'Tesla Powerwall 2'])
 battery_units = st.selectbox('Number of Batteries (1 Battery = 15 kWh)', [1, 2, 3, 4, 5])
 
 # Calculate button
+if battery_type == 'FranklinWH aPower 2':
+    battery_kwh = 15
+    battery_kw_continuous = 10
+    battery_kw_peak = 15
+elif battery_type == 'Tesla Powerwall 2':
+    battery_kwh = 13.5
+    battery_kw_continuous = 5
+    battery_kw_peak = 7
+
+battery_storage_capacity = battery_units * battery_kwh
+battery_power_output = battery_units * battery_kw_continuous
+battery_peak_output = battery_units * battery_kw_peak
+
 if st.button('Calculate Savings'):
     monthly_savings, yearly_savings, ten_year_savings, fifteen_year_savings, max_bill = calculate_savings(monthly_bill, provider, battery_units)
 
-    total_battery_power = battery_units * BATTERY_KW_PER_UNIT
+    
     st.success(f"Monthly Savings: ${monthly_savings}")
     st.success(f"Yearly Savings: ${yearly_savings}")
     st.success(f"10-Year Savings: ${ten_year_savings}")
     st.success(f"15-Year Savings: ${fifteen_year_savings}")
-    st.info(f"Total Battery Power Output: {total_battery_power} kW")
+    st.info(f"Total Battery Power Output: {battery_power_output} kW continuous, {battery_peak_output} kW peak")
+st.info(f"Total Battery Storage Capacity: {battery_storage_capacity} kWh")
 
     # Display Alert if Bill Exceeds Battery Coverage
     if monthly_bill > max_bill:
-        st.warning(f"⚡ Warning: Your bill exceeds the coverage capacity of {battery_units} battery/batteries ({total_battery_power} kW continuous output, 15 kWh storage per battery). You may need additional batteries to fully offset peak usage.")
+        st.warning(f"⚡ Warning: Your bill exceeds the coverage capacity of {battery_units} {battery_type}(s). {battery_power_output} kW continuous, {battery_peak_output} kW peak, {battery_storage_capacity} kWh total storage.")) You may need additional batteries to fully offset peak usage.")
     else:
-        st.success(f"Your current bill is within the coverage capacity of {battery_units} battery/batteries ({total_battery_power} kW continuous output, 15 kWh storage per battery).")
+        st.success(f"Your current bill is within the coverage capacity of {battery_units} {battery_type}(s). {battery_power_output} kW continuous, {battery_peak_output} kW peak, {battery_storage_capacity} kWh total storage.")
 
 else:
     st.info('Enter the values and click "Calculate Savings" to see the result.')
