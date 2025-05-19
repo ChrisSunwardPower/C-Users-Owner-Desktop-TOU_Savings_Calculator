@@ -6,11 +6,8 @@ TOU_RATES = {
     'Pacific Power': {'peak_rate': 0.32, 'off_peak_rate': 0.12}
 }
 
-# Battery Specifications
-BATTERY_SPECS = {
-    'FranklinWH aPower 2': {'storage_kwh': 15, 'power_kw': 10, 'peak_kw': 15},
-    'Tesla Powerwall 2': {'storage_kwh': 13.5, 'power_kw': 5, 'peak_kw': 7}
-}
+# Fixed Battery Capacity
+BATTERY_CAPACITY_KWH = 13.5
 
 # Calculate Savings
 
@@ -27,22 +24,32 @@ def calculate_savings(monthly_bill, provider):
     # Determine kWh for peak usage
     peak_kwh = peak_cost / peak_rate
 
-    # Recalculate peak cost at off-peak rate
-    new_peak_cost = peak_kwh * off_peak_rate
+    # Calculate covered and uncovered kWh
+    if peak_kwh <= BATTERY_CAPACITY_KWH:
+        covered_kwh = peak_kwh
+        uncovered_kwh = 0
+    else:
+        covered_kwh = BATTERY_CAPACITY_KWH
+        uncovered_kwh = peak_kwh - BATTERY_CAPACITY_KWH
+
+    # Recalculate peak cost considering uncovered kWh
+    new_peak_cost = (covered_kwh * off_peak_rate) + (uncovered_kwh * peak_rate)
 
     # New bill calculation
     new_bill = off_peak_cost + new_peak_cost
 
     # Savings calculation
     savings = monthly_bill - new_bill
-
-    # Ensure savings do not go negative
     savings = max(0, savings)
 
     # Annual, 10-year, and 15-year savings
     annual_savings = savings * 12
     ten_year_savings = annual_savings * 10
     fifteen_year_savings = annual_savings * 15
+
+    # Provide warning for uncovered kWh
+    if uncovered_kwh > 0:
+        st.warning(f"⚡ Battery capacity is insufficient to cover {uncovered_kwh:.2f} kWh of peak usage. These kWh will be billed at the peak rate.")
 
     return round(savings, 2), round(annual_savings, 2), round(ten_year_savings, 2), round(fifteen_year_savings, 2)
 
