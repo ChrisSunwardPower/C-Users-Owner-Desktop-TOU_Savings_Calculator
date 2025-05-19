@@ -48,7 +48,7 @@ def calculate_savings(monthly_bill, provider, battery_units):
     off_peak_kwh = daily_kwh * (1 - peak_percentage)
 
     # Battery Coverage
-    battery_coverage_kwh = min(battery_capacity, peak_kwh)
+    battery_coverage_kwh = min(battery_units * 15, peak_kwh)
     remaining_peak_kwh = max(0, peak_kwh - battery_coverage_kwh)
 
     # Cost Without Battery
