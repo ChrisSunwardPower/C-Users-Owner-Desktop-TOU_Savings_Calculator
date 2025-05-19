@@ -5,23 +5,47 @@ monthly_bill = st.number_input('Monthly Bill ($)', min_value=0.0, value=260.0)
 provider = st.selectbox('Select Utility Provider', ['PGE', 'Pacific Power'])
 batteries = st.number_input('Number of Batteries', min_value=1, value=1)
 
-# Assumptions (Standardized for Oregon)
-peak_rate = 0.35  # $/kWh
-off_peak_rate = 0.10  # $/kWh
+# Rates for PGE and Pacific Power
+rates = {
+    'PGE': {'peak_rate': 0.35, 'off_peak_rate': 0.10},
+    'Pacific Power': {'peak_rate': 0.33, 'off_peak_rate': 0.09}
+}
 
-# Calculate Peak Shaving
-peak_usage_kwh = 265.07  # Example peak usage in kWh
-peak_savings = peak_usage_kwh * (peak_rate - off_peak_rate)
-monthly_savings = peak_savings / batteries
-annual_savings = monthly_savings * 12
+selected_rates = rates[provider]
+peak_rate = selected_rates['peak_rate']
+off_peak_rate = selected_rates['off_peak_rate']
 
-ten_year_savings = annual_savings * 10
-fifteen_year_savings = annual_savings * 15
+# Battery Capacity
+battery_capacity = 13.5  # kWh per battery
+
+def calculate_savings(monthly_bill, peak_rate, off_peak_rate, batteries):
+    # Calculate Peak and Off-Peak Usage
+    peak_usage_kwh = (monthly_bill * 0.3) / peak_rate
+    off_peak_usage_kwh = (monthly_bill * 0.7) / off_peak_rate
+
+    # Battery Coverage
+    max_off_peak_coverage = batteries * battery_capacity
+    peak_covered_kwh = min(peak_usage_kwh, max_off_peak_coverage)
+    remaining_peak_kwh = peak_usage_kwh - peak_covered_kwh
+
+    # Recalculate based on battery coverage
+    total_off_peak_kwh = off_peak_usage_kwh + peak_covered_kwh
+    total_billable_kwh = total_off_peak_kwh + remaining_peak_kwh
+    off_peak_bill = total_off_peak_kwh * off_peak_rate
+    peak_bill = remaining_peak_kwh * peak_rate
+
+    # Calculate Savings
+    total_bill = peak_bill + off_peak_bill
+    savings = monthly_bill - total_bill
+
+    return savings, savings * 12, savings * 120, savings * 180
+
+monthly_savings, annual_savings, ten_year_savings, fifteen_year_savings = calculate_savings(monthly_bill, peak_rate, off_peak_rate, batteries)
 
 # Display Savings
-st.write(f"{peak_usage_kwh} kWh will be billed at the peak rate. Consider adding more batteries.")
+st.write(f"Peak Rate: ${peak_rate}/kWh, Off-Peak Rate: ${off_peak_rate}/kWh")
 st.subheader("Savings Breakdown")
-st.write(f"Monthly: ${monthly_savings:.2f}")
-st.write(f"Annual: ${annual_savings:.2f}")
-st.write(f"10-Year: ${ten_year_savings:.2f}")
-st.write(f"15-Year: ${fifteen_year_savings:.2f}")
+st.write(f"Monthly Savings: ${monthly_savings:.2f}")
+st.write(f"Annual Savings: ${annual_savings:.2f}")
+st.write(f"10-Year Savings: ${ten_year_savings:.2f}")
+st.write(f"15-Year Savings: ${fifteen_year_savings:.2f}")
