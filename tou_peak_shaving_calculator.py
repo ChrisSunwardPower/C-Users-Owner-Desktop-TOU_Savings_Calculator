@@ -50,7 +50,10 @@ battery_units = st.selectbox('Number of Batteries', [1, 2, 3, 4, 5])
 if st.button('Calculate Savings'):
     savings, annual, ten_year, fifteen_year, peak_kwh = calculate_savings(monthly_bill, provider)
     st.subheader('Savings Breakdown')
-    st.write(f"Monthly: ${savings}, Annual: ${annual}, 10-Year: ${ten_year}, 15-Year: ${fifteen_year}")
+    st.subheader('Savings Breakdown')
+st.write(f"Monthly Savings: ${savings}")
+st.write(f"Annual Savings: ${annual}")
+st.write(f"10-Year Savings: ${ten
 
     # Battery Disclaimer
     total_battery_capacity = battery_units * BATTERY_CAPACITY_KWH
