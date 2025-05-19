@@ -13,6 +13,7 @@ BATTERY_SPECS = {
 }
 
 # Savings Calculation
+
 def calculate_savings(monthly_bill, provider, battery_type, battery_units):
     rates = TOU_RATES[provider]
     peak_rate = rates['peak_rate']
@@ -25,52 +26,24 @@ def calculate_savings(monthly_bill, provider, battery_type, battery_units):
     battery_power = specs['power_kw'] * battery_units
     battery_peak = specs['peak_kw'] * battery_units
 
+    # Debug Input Values
+    print(f"Monthly Bill: {monthly_bill}")
+    print(f"Provider: {provider}")
+    print(f"Battery Type: {battery_type}")
+    print(f"Battery Units: {battery_units}")
+    print(f"Rates: {rates}")
+
     # Determine daily usage
-    daily_bill = monthly_bill / 30
-    daily_kwh = daily_bill / avg_rate
-    peak_kwh = daily_kwh * 0.3
-    off_peak_kwh = daily_kwh * 0.7
+    try:
+        daily_bill = monthly_bill / 30
+        daily_kwh = daily_bill / avg_rate if avg_rate != 0 else 0
+        peak_kwh = daily_kwh * 0.3
+        off_peak_kwh = daily_kwh * 0.7
+    except ZeroDivisionError:
+        st.error("Error: Division by zero in usage calculation. Check input values.")
+        return (0, 0, 0, 0, battery_power, battery_peak, battery_storage, 0)
 
-    # Calculate battery coverage
-    battery_coverage_kwh = min(battery_storage, peak_kwh)
-    remaining_peak_kwh = max(0, peak_kwh - battery_coverage_kwh)
-
-    # Costs without battery
-    cost_without_battery = (peak_kwh * peak_rate) + (off_peak_kwh * off_peak_rate)
-
-    # Costs with battery
-    battery_covered_cost = battery_coverage_kwh * off_peak_rate
-    uncovered_peak_cost = remaining_peak_kwh * peak_rate
-    off_peak_cost = off_peak_kwh * off_peak_rate
-
-    cost_with_battery = battery_covered_cost + uncovered_peak_cost + off_peak_cost
-
-    # Debug Output
-    print(f"Remaining Peak kWh: {remaining_peak_kwh}")
-    print(f"Uncovered Cost: {remaining_peak_kwh * peak_rate}")
-
-    # Adjust savings for uncovered peak usage
-    uncovered_cost = remaining_peak_kwh * peak_rate
-    adjusted_monthly_savings = (cost_without_battery - cost_with_battery) - uncovered_cost
-
-    # Ensure savings do not go negative
-    adjusted_monthly_savings = max(0, adjusted_monthly_savings)
-
-    # Propagate to annual, 10-year, and 15-year savings
-    yearly_savings = adjusted_monthly_savings * 12
-    ten_year_savings = yearly_savings * 10
-    fifteen_year_savings = yearly_savings * 15
-
-    print(f"Adjusted Monthly Savings: {adjusted_monthly_savings}")
-    print(f"Adjusted Yearly Savings: {yearly_savings}")
-
-    return (
-        round(adjusted_monthly_savings, 2),
-        round(yearly_savings, 2),
-        round(ten_year_savings, 2),
-        round(fifteen_year_savings, 2),
-        battery_power,
-        battery_peak,
-        battery_storage,
-        remaining_peak_kwh
-    )
+    print(f"Daily Bill: {daily_bill}")
+    print(f"Daily kWh: {daily_kwh}")
+    print(f"Peak kWh: {peak_kwh}")
+    print(f"Off-Peak kWh: {off_peak_kwh}")
