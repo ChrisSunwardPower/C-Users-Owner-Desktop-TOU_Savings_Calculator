@@ -25,20 +25,13 @@ def calculate_savings(monthly_bill, provider, battery_type, battery_units):
     print(f"Provider: {provider}")
     print(f"Battery Type: {battery_type}")
     print(f"Battery Units: {battery_units}")
-    print(f"Peak Rate: {peak_rate}")
-    print(f"Off-Peak Rate: {off_peak_rate}")
 
     # Bill breakdown
     peak_cost = monthly_bill * 0.3
     off_peak_cost = monthly_bill * 0.7
     print(f"Peak Cost: {peak_cost}, Off-Peak Cost: {off_peak_cost}")
 
-    # Prevent division by zero
-    if peak_rate == 0 or off_peak_rate == 0:
-        st.error("Error: Invalid rate values detected.")
-        return 0, 0, 0, 0, 0
-
-    # Determine kWh for peak usage
+    # Determine kWh for peak and off-peak
     peak_kwh = peak_cost / peak_rate
     off_peak_kwh = off_peak_cost / off_peak_rate
     print(f"Peak kWh: {peak_kwh}, Off-Peak kWh: {off_peak_kwh}")
@@ -48,19 +41,21 @@ def calculate_savings(monthly_bill, provider, battery_type, battery_units):
     battery_storage = battery['storage_kwh'] * battery_units
     print(f"Battery Storage: {battery_storage} kWh")
 
-    # Check battery coverage
+    # Calculate new peak cost based on battery coverage
     if battery_storage >= peak_kwh:
+        # Full coverage: Rebill peak at off-peak rate
         new_peak_cost = peak_kwh * off_peak_rate
         remaining_peak_kwh = 0
-        print("Battery fully covers peak usage.")
+        print(f"New Peak Cost (fully covered by battery): {new_peak_cost}")
     else:
+        # Partial coverage
         covered_kwh = battery_storage
         uncovered_kwh = peak_kwh - covered_kwh
         new_peak_cost = (covered_kwh * off_peak_rate) + (uncovered_kwh * peak_rate)
         remaining_peak_kwh = uncovered_kwh
-        print(f"Partial coverage. Covered kWh: {covered_kwh}, Uncovered kWh: {uncovered_kwh}")
+        print(f"New Peak Cost (partial coverage): {new_peak_cost}")
 
-    # New bill calculation
+    # Calculate new bill
     new_bill = (off_peak_kwh * off_peak_rate) + new_peak_cost
     print(f"New Bill: {new_bill}")
 
