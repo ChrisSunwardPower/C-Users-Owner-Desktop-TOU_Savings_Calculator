@@ -22,9 +22,6 @@ def calculate_savings(monthly_bill, provider, battery_type, battery_units):
 
     # Debug output
     print(f"Monthly Bill: {monthly_bill}")
-    print(f"Provider: {provider}")
-    print(f"Battery Type: {battery_type}")
-    print(f"Battery Units: {battery_units}")
 
     # Bill breakdown
     peak_cost = monthly_bill * 0.3
@@ -41,21 +38,21 @@ def calculate_savings(monthly_bill, provider, battery_type, battery_units):
     battery_storage = battery['storage_kwh'] * battery_units
     print(f"Battery Storage: {battery_storage} kWh")
 
-    # Calculate new peak cost based on battery coverage
+    # Rebill peak usage
     if battery_storage >= peak_kwh:
         # Full coverage: Rebill peak at off-peak rate
         new_peak_cost = peak_kwh * off_peak_rate
         remaining_peak_kwh = 0
-        print(f"New Peak Cost (fully covered by battery): {new_peak_cost}")
     else:
         # Partial coverage
         covered_kwh = battery_storage
         uncovered_kwh = peak_kwh - covered_kwh
         new_peak_cost = (covered_kwh * off_peak_rate) + (uncovered_kwh * peak_rate)
         remaining_peak_kwh = uncovered_kwh
-        print(f"New Peak Cost (partial coverage): {new_peak_cost}")
 
-    # Calculate new bill
+    print(f"Rebilled Peak Cost: {new_peak_cost}")
+
+    # New bill calculation
     new_bill = (off_peak_kwh * off_peak_rate) + new_peak_cost
     print(f"New Bill: {new_bill}")
 
