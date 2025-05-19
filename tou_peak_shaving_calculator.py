@@ -36,7 +36,9 @@ def calculate_savings(monthly_bill, provider, battery_units):
         uncovered_kwh = peak_kwh - total_battery_capacity
 
     # Recalculate peak cost
-    new_peak_cost = (covered_kwh * off_peak_rate) + (uncovered_kwh * peak_rate)
+    covered_cost = covered_kwh * off_peak_rate
+    uncovered_cost = uncovered_kwh * peak_rate
+    new_peak_cost = covered_cost + uncovered_cost
 
     # New bill calculation
     new_bill = off_peak_cost + new_peak_cost
