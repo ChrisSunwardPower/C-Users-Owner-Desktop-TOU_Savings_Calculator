@@ -53,7 +53,8 @@ if st.button('Calculate Savings'):
     st.subheader('Savings Breakdown')
 st.write(f"Monthly Savings: ${savings}")
 st.write(f"Annual Savings: ${annual}")
-st.write(f"10-Year Savings: ${ten
+st.write(f"10-Year Savings: ${ten_year}")
+st.write(f"15-Year Savings: ${fifteen_year}")
 
     # Battery Disclaimer
     total_battery_capacity = battery_units * BATTERY_CAPACITY_KWH
