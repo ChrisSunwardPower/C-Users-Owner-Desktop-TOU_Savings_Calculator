@@ -48,10 +48,7 @@ def calculate_savings(monthly_bill, provider, battery_type, battery_units):
     cost_without_battery = (peak_kwh * peak_rate) + (off_peak_kwh * off_peak_rate)
 
     # Costs with battery
-    cost_with_battery = (remaining_peak_kwh * peak_rate) + (off_peak_kwh * off_peak_rate) + (battery_coverage_kwh * off_peak_rate)
-
-    # Savings calculations
-    daily_savings = cost_without_battery - cost_with_battery
+    cost_with_battery = (remaining_peak_kwh * peak_rate) + (off_p_battery - cost_with_battery
     monthly_savings = daily_savings * 30
     yearly_savings = monthly_savings * 12
     ten_year_savings = yearly_savings * 10
