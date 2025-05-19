@@ -73,7 +73,7 @@ st.set_page_config(page_title='TOU Peak Shaving Savings Calculator', layout='cen
 st.title('Time of Use (TOU) Peak Shaving Savings Calculator')
 
 st.header('Input Parameters')
-monthly_bill = st.number_input('Monthly Bill ($)', min_value=0.0, value=200.0, step=1.0)
+monthly_bill = st.number_input('Monthly Bill ($)', min_value=0.0, value=200.0, step=10.0)
 provider = st.selectbox('Select Utility Provider', ['PGE', 'Pacific Power'])
 battery_type = st.selectbox('Select Battery Type', ['FranklinWH aPower 2', 'Tesla Powerwall 2'])
 battery_units = st.selectbox('Number of Batteries', [1, 2, 3, 4, 5])
