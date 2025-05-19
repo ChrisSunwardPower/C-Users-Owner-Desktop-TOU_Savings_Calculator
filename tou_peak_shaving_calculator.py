@@ -6,12 +6,12 @@ TOU_RATES = {
     'Pacific Power': {'peak_rate': 0.32, 'off_peak_rate': 0.12}
 }
 
-# Fixed Battery Capacity
+# Battery Specifications
 BATTERY_CAPACITY_KWH = 13.5
 
 # Calculate Savings
 
-def calculate_savings(monthly_bill, provider):
+def calculate_savings(monthly_bill, provider, battery_units):
     # Get rates
     rates = TOU_RATES[provider]
     peak_rate = rates['peak_rate']
@@ -24,15 +24,18 @@ def calculate_savings(monthly_bill, provider):
     # Determine kWh for peak usage
     peak_kwh = peak_cost / peak_rate
 
+    # Calculate total battery capacity
+    total_battery_capacity = battery_units * BATTERY_CAPACITY_KWH
+
     # Calculate covered and uncovered kWh
-    if peak_kwh <= BATTERY_CAPACITY_KWH:
+    if peak_kwh <= total_battery_capacity:
         covered_kwh = peak_kwh
         uncovered_kwh = 0
     else:
-        covered_kwh = BATTERY_CAPACITY_KWH
-        uncovered_kwh = peak_kwh - BATTERY_CAPACITY_KWH
+        covered_kwh = total_battery_capacity
+        uncovered_kwh = peak_kwh - total_battery_capacity
 
-    # Recalculate peak cost considering uncovered kWh
+    # Recalculate peak cost
     new_peak_cost = (covered_kwh * off_peak_rate) + (uncovered_kwh * peak_rate)
 
     # New bill calculation
@@ -47,9 +50,9 @@ def calculate_savings(monthly_bill, provider):
     ten_year_savings = annual_savings * 10
     fifteen_year_savings = annual_savings * 15
 
-    # Provide warning for uncovered kWh
+    # Battery coverage warning
     if uncovered_kwh > 0:
-        st.warning(f"⚡ Battery capacity is insufficient to cover {uncovered_kwh:.2f} kWh of peak usage. These kWh will be billed at the peak rate.")
+        st.warning(f"⚡ Battery capacity is insufficient to cover {uncovered_kwh:.2f} kWh of peak usage. These kWh will be billed at the peak rate. Consider adding more batteries.")
 
     return round(savings, 2), round(annual_savings, 2), round(ten_year_savings, 2), round(fifteen_year_savings, 2)
 
@@ -61,10 +64,11 @@ st.title('Time of Use (TOU) Peak Shaving Savings Calculator')
 st.header('Enter Your Information')
 monthly_bill = st.number_input('Monthly Bill ($)', min_value=0.0, value=200.0, step=10.0)
 provider = st.selectbox('Select Utility Provider', ['PGE', 'Pacific Power'])
+battery_units = st.selectbox('Number of Batteries', [1, 2, 3, 4, 5])
 
 # Calculate Savings
 if st.button('Calculate Savings'):
-    savings, annual_savings, ten_year_savings, fifteen_year_savings = calculate_savings(monthly_bill, provider)
+    savings, annual_savings, ten_year_savings, fifteen_year_savings = calculate_savings(monthly_bill, provider, battery_units)
 
     # Output Section
     st.subheader('Savings Breakdown')
