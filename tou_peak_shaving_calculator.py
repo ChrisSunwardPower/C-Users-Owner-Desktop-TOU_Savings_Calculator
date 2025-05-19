@@ -6,64 +6,53 @@ TOU_RATES = {
     'Pacific Power': {'peak_rate': 0.32, 'off_peak_rate': 0.12}
 }
 
-# Battery Specifications
-BATTERY_SPECS = {
-    'FranklinWH aPower 2': {'storage_kwh': 15, 'power_kw': 10, 'peak_kw': 15},
-    'Tesla Powerwall 2': {'storage_kwh': 13.5, 'power_kw': 5, 'peak_kw': 7}
-}
+# Battery Capacity in kWh
+BATTERY_CAPACITY_KWH = 13.5
 
 # Calculate Savings
 
-def calculate_savings(monthly_bill, provider):
-    # Get rates
+def calculate_savings(monthly_bill, provider, battery_units):
     rates = TOU_RATES[provider]
     peak_rate = rates['peak_rate']
     off_peak_rate = rates['off_peak_rate']
 
-    # Bill breakdown
+    # Calculate 30% of the bill as peak cost
     peak_cost = monthly_bill * 0.3
     off_peak_cost = monthly_bill * 0.7
 
-    # Determine kWh for peak usage
+    # Calculate kWh for peak and off-peak
     peak_kwh = peak_cost / peak_rate
+    off_peak_kwh = off_peak_cost / off_peak_rate
+    total_kwh = peak_kwh + off_peak_kwh
 
-    # Recalculate peak cost at off-peak rate
-    new_peak_cost = peak_kwh * off_peak_rate
+    # Battery Coverage Calculation
+    total_battery_capacity = battery_units * BATTERY_CAPACITY_KWH
+    covered_kwh = min(peak_kwh, total_battery_capacity)
+    uncovered_kwh = max(0, peak_kwh - total_battery_capacity)
+
+    # Calculate Costs
+    covered_cost = covered_kwh * off_peak_rate
+    uncovered_cost = uncovered_kwh * peak_rate
+    new_peak_cost = covered_cost + uncovered_cost
 
     # New bill calculation
     new_bill = off_peak_cost + new_peak_cost
+    savings = max(0, monthly_bill - new_bill)
 
-    # Savings calculation
-    savings = monthly_bill - new_bill
+    # Battery Warning
+    if uncovered_kwh > 0:
+        st.warning(f"{uncovered_kwh:.2f} kWh will be billed at the peak rate. Consider adding more batteries.")
 
-    # Ensure savings do not go negative
-    savings = max(0, savings)
+    return round(savings, 2), round(savings * 12, 2), round(savings * 120, 2), round(savings * 180, 2)
 
-    # Annual, 10-year, and 15-year savings
-    annual_savings = savings * 12
-    ten_year_savings = annual_savings * 10
-    fifteen_year_savings = annual_savings * 15
+st.set_page_config(page_title='TOU Savings Calculator', layout='centered')
+st.title('TOU Peak Shaving Savings Calculator')
 
-    return round(savings, 2), round(annual_savings, 2), round(ten_year_savings, 2), round(fifteen_year_savings, 2)
-
-# Streamlit UI
-st.set_page_config(page_title='TOU Peak Shaving Calculator', layout='centered')
-st.title('Time of Use (TOU) Peak Shaving Savings Calculator')
-
-# Input Section
-st.header('Enter Your Information')
 monthly_bill = st.number_input('Monthly Bill ($)', min_value=0.0, value=200.0, step=10.0)
 provider = st.selectbox('Select Utility Provider', ['PGE', 'Pacific Power'])
+battery_units = st.selectbox('Number of Batteries', [1, 2, 3, 4, 5])
 
-# Calculate Savings
 if st.button('Calculate Savings'):
-    savings, annual_savings, ten_year_savings, fifteen_year_savings = calculate_savings(monthly_bill, provider)
-
-    # Output Section
+    savings, annual, ten_year, fifteen_year = calculate_savings(monthly_bill, provider, battery_units)
     st.subheader('Savings Breakdown')
-    st.write(f"Monthly Savings: ${savings}")
-    st.write(f"Annual Savings: ${annual_savings}")
-    st.write(f"10-Year Savings: ${ten_year_savings}")
-    st.write(f"15-Year Savings: ${fifteen_year_savings}")
-else:
-    st.info('Enter your information and click "Calculate Savings" to see the results.')
+    st.write(f"Monthly: ${savings}, Annual: ${annual}, 10-Year: ${ten_year}, 15-Year: ${fifteen_year}")
