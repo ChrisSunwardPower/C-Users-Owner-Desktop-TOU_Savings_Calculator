@@ -81,7 +81,7 @@ st.write('Calculate potential savings by using a battery system to shift peak us
 
 # Input fields
 st.sidebar.header('Input Parameters')
-monthly_bill = st.sidebar.number_input('Monthly Bill ($)', min_value=0.0, value=200.0)
+monthly_bill = st.sidebar.number_input('Monthly Bill ($)', min_value=0.0, value=200.0, step=1.0)
 provider = st.sidebar.selectbox('Select Utility Provider', ['PGE', 'Pacific Power'])
 battery_units = st.sidebar.selectbox('Number of Batteries (1 Battery = 15 kWh)', [1, 2, 3, 4, 5])
 
