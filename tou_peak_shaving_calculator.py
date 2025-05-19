@@ -19,6 +19,7 @@ off_peak_rate = selected_rates['off_peak_rate']
 battery_capacity = 13.5  # kWh per battery
 
 # Calculation Function
+
 def calculate_savings(monthly_bill, peak_rate, off_peak_rate, batteries):
     # Determine kWhs during Peak and Off-Peak Hours
     peak_bill_amount = monthly_bill * 0.3
@@ -30,18 +31,14 @@ def calculate_savings(monthly_bill, peak_rate, off_peak_rate, batteries):
 
     # Determine Battery Coverage
     max_battery_coverage = batteries * battery_capacity
-    if peak_kwh > max_battery_coverage:
-        peak_kwh_covered = max_battery_coverage
-        peak_kwh_remaining = peak_kwh - max_battery_coverage
-    else:
-        peak_kwh_covered = peak_kwh
-        peak_kwh_remaining = 0
+    peak_kwh_covered = min(peak_kwh, max_battery_coverage)
+    peak_kwh_remaining = max(0, peak_kwh - peak_kwh_covered)
 
     # Calculate Adjusted Billable kWh
     adjusted_off_peak_kwh = off_peak_kwh + peak_kwh_covered
     adjusted_peak_kwh = peak_kwh_remaining
 
-    # Calculate Savings
+    # Calculate Adjusted Bill
     adjusted_off_peak_bill = adjusted_off_peak_kwh * off_peak_rate
     adjusted_peak_bill = adjusted_peak_kwh * peak_rate
     adjusted_total_bill = adjusted_off_peak_bill + adjusted_peak_bill
