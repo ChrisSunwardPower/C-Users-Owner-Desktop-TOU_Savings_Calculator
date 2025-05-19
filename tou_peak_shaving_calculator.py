@@ -25,55 +25,23 @@ def calculate_savings(monthly_bill, provider):
     peak_kwh = peak_cost / peak_rate
     print(f"Peak kWh: {peak_kwh}")  # Debug
 
-    # Determine battery coverage
-    if peak_kwh > BATTERY_CAPACITY_KWH:
-        uncovered_kwh = peak_kwh - BATTERY_CAPACITY_KWH
-        covered_kwh = BATTERY_CAPACITY_KWH
-        st.warning(f"⚡ Battery capacity is insufficient to cover {uncovered_kwh:.2f} kWh of peak usage. These kWh will be billed at the peak rate.")
-    else:
-        uncovered_kwh = 0
-        covered_kwh = peak_kwh
-
-    print(f"Covered kWh: {covered_kwh}, Uncovered kWh: {uncovered_kwh}")  # Debug
-
     # Calculate new peak cost
-    new_peak_cost = (covered_kwh * off_peak_rate) + (uncovered_kwh * peak_rate)
-    print(f"New Peak Cost: {new_peak_cost}")  # Debug
+    # Covered kWh is billed at off-peak, uncovered at peak rate
+    if peak_kwh <= BATTERY_CAPACITY_KWH:
+        new_peak_cost = peak_kwh * off_peak_rate
+        uncovered_kwh = 0
+    else:
+        covered_kwh = BATTERY_CAPACITY_KWH
+        uncovered_kwh = peak_kwh - BATTERY_CAPACITY_KWH
+        new_peak_cost = (covered_kwh * off_peak_rate) + (uncovered_kwh * peak_rate)
 
     # New bill calculation
     new_bill = off_peak_cost + new_peak_cost
-    print(f"New Bill: {new_bill}")  # Debug
 
     # Savings calculation
     savings = monthly_bill - new_bill
     savings = max(0, savings)
-    print(f"Savings: {savings}")  # Debug
 
-    # Annual, 10-year, and 15-year savings
-    annual_savings = savings * 12
-    ten_year_savings = annual_savings * 10
-    fifteen_year_savings = annual_savings * 15
-
-    return round(savings, 2), round(annual_savings, 2), round(ten_year_savings, 2), round(fifteen_year_savings, 2)
-
-# Streamlit UI
-st.set_page_config(page_title='TOU Peak Shaving Calculator', layout='centered')
-st.title('Time of Use (TOU) Peak Shaving Savings Calculator')
-
-# Input Section
-st.header('Enter Your Information')
-monthly_bill = st.number_input('Monthly Bill ($)', min_value=0.0, value=200.0, step=10.0)
-provider = st.selectbox('Select Utility Provider', ['PGE', 'Pacific Power'])
-
-# Calculate Savings
-if st.button('Calculate Savings'):
-    savings, annual_savings, ten_year_savings, fifteen_year_savings = calculate_savings(monthly_bill, provider)
-
-    # Output Section
-    st.subheader('Savings Breakdown')
-    st.write(f"Monthly Savings: ${savings}")
-    st.write(f"Annual Savings: ${annual_savings}")
-    st.write(f"10-Year Savings: ${ten_year_savings}")
-    st.write(f"15-Year Savings: ${fifteen_year_savings}")
-else:
-    st.info('Enter your information and click "Calculate Savings" to see the results.')
+    # Battery coverage warning (moved to end for clarity)
+    if uncovered_kwh > 0:
+        st.warning(f"⚡ Battery capacity is insufficient to cover {uncovered_kwh:.2f} kWh of peak usage. These kWh will be billed at the peak rate.")
