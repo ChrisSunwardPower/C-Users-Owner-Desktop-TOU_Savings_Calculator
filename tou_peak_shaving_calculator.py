@@ -14,70 +14,56 @@ BATTERY_SPECS = {
 
 # Calculate Savings
 
-def calculate_savings(monthly_bill, provider, battery_type, battery_units):
-    # Fetch rates
-    rates = TOU_RATES.get(provider, {'peak_rate': 0, 'off_peak_rate': 0})
+def calculate_savings(monthly_bill, provider):
+    # Get rates
+    rates = TOU_RATES[provider]
     peak_rate = rates['peak_rate']
     off_peak_rate = rates['off_peak_rate']
-    avg_rate = (peak_rate * 0.3) + (off_peak_rate * 0.7)
 
-    # Fetch battery specs
-    specs = BATTERY_SPECS.get(battery_type, {'storage_kwh': 0, 'power_kw': 0, 'peak_kw': 0})
-    battery_storage = specs['storage_kwh'] * battery_units
-    battery_power = specs['power_kw'] * battery_units
-    battery_peak = specs['peak_kw'] * battery_units
+    # Bill breakdown
+    peak_cost = monthly_bill * 0.3
+    off_peak_cost = monthly_bill * 0.7
 
-    # Prevent division by zero
-    if avg_rate == 0:
-        st.error("Error: Invalid rate values detected.")
-        return 0, 0, 0, 0, 0, 0, 0, 0
+    # Determine kWh for peak usage
+    peak_kwh = peak_cost / peak_rate
 
-    # Calculate daily usage
-    daily_bill = monthly_bill / 30
-    daily_kwh = daily_bill / avg_rate
-    peak_kwh = daily_kwh * 0.3
-    off_peak_kwh = daily_kwh * 0.7
-
-    # Calculate battery coverage
-    battery_coverage_kwh = min(battery_storage, peak_kwh)
-    remaining_peak_kwh = max(0, peak_kwh - battery_coverage_kwh)
-
-    # Costs without battery
-    cost_without_battery = (peak_kwh * peak_rate) + (off_peak_kwh * off_peak_rate)
-
-    # Costs with battery
-    battery_covered_cost = battery_coverage_kwh * off_peak_rate
-    uncovered_peak_cost = remaining_peak_kwh * peak_rate
-    off_peak_cost = off_peak_kwh * off_peak_rate
-
-    cost_with_battery = battery_covered_cost + uncovered_peak_cost + off_peak_cost
-
-    # Recalculate Peak Usage at Off-Peak Rate
-    # Remove $60 of peak usage and recalculate at off-peak rate
-    peak_kwh = 60 / peak_rate
+    # Recalculate peak cost at off-peak rate
     new_peak_cost = peak_kwh * off_peak_rate
 
-    # New Bill Calculation
-    new_bill = 140 + new_peak_cost
+    # New bill calculation
+    new_bill = off_peak_cost + new_peak_cost
 
-    # Monthly Savings Calculation
-    monthly_savings = monthly_bill - new_bill
+    # Savings calculation
+    savings = monthly_bill - new_bill
 
-    # Ensure savings are not negative
-    monthly_savings = max(0, monthly_savings)
+    # Ensure savings do not go negative
+    savings = max(0, savings)
 
     # Annual, 10-year, and 15-year savings
-    yearly_savings = monthly_savings * 12
-    ten_year_savings = yearly_savings * 10
-    fifteen_year_savings = yearly_savings * 15
+    annual_savings = savings * 12
+    ten_year_savings = annual_savings * 10
+    fifteen_year_savings = annual_savings * 15
 
-    return (
-        round(monthly_savings, 2),
-        round(yearly_savings, 2),
-        round(ten_year_savings, 2),
-        round(fifteen_year_savings, 2),
-        battery_power,
-        battery_peak,
-        battery_storage,
-        round(peak_kwh, 2)
-    )
+    return round(savings, 2), round(annual_savings, 2), round(ten_year_savings, 2), round(fifteen_year_savings, 2)
+
+# Streamlit UI
+st.set_page_config(page_title='TOU Peak Shaving Calculator', layout='centered')
+st.title('Time of Use (TOU) Peak Shaving Savings Calculator')
+
+# Input Section
+st.header('Enter Your Information')
+monthly_bill = st.number_input('Monthly Bill ($)', min_value=0.0, value=200.0, step=10.0)
+provider = st.selectbox('Select Utility Provider', ['PGE', 'Pacific Power'])
+
+# Calculate Savings
+if st.button('Calculate Savings'):
+    savings, annual_savings, ten_year_savings, fifteen_year_savings = calculate_savings(monthly_bill, provider)
+
+    # Output Section
+    st.subheader('Savings Breakdown')
+    st.write(f"Monthly Savings: ${savings}")
+    st.write(f"Annual Savings: ${annual_savings}")
+    st.write(f"10-Year Savings: ${ten_year_savings}")
+    st.write(f"15-Year Savings: ${fifteen_year_savings}")
+else:
+    st.info('Enter your information and click "Calculate Savings" to see the results.')
