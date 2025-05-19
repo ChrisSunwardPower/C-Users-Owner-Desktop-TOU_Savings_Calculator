@@ -6,7 +6,7 @@ TOU_RATES = {
     'Pacific Power': {'peak_rate': 0.32, 'off_peak_rate': 0.12}
 }
 
-# Battery Specifications
+# Battery Capacity in kWh
 BATTERY_CAPACITY_KWH = 13.5
 
 def calculate_savings(monthly_bill, provider, battery_units):
@@ -14,37 +14,36 @@ def calculate_savings(monthly_bill, provider, battery_units):
     peak_rate = rates['peak_rate']
     off_peak_rate = rates['off_peak_rate']
 
-    # Bill breakdown
+    # Calculate Peak and Off-Peak Costs
     peak_cost = monthly_bill * 0.3
     off_peak_cost = monthly_bill * 0.7
 
-    # Peak kWh calculation
+    # Calculate Peak kWh
     peak_kwh = peak_cost / peak_rate
     total_battery_capacity = battery_units * BATTERY_CAPACITY_KWH
 
-    # Determine covered and uncovered kWh
+    # Calculate Covered and Uncovered kWh
     covered_kwh = min(peak_kwh, total_battery_capacity)
     uncovered_kwh = max(0, peak_kwh - total_battery_capacity)
 
-    # Calculate new peak cost
+    # Calculate Covered and Uncovered Costs
     covered_cost = covered_kwh * off_peak_rate
     uncovered_cost = uncovered_kwh * peak_rate
-    new_peak_cost = covered_cost + uncovered_cost
 
-    # Calculate new bill
-    new_bill = off_peak_cost + new_peak_cost
+    # Calculate New Bill
+    new_bill = off_peak_cost + covered_cost + uncovered_cost
 
-    # Calculate savings
+    # Calculate Savings
     savings = max(0, monthly_bill - new_bill)
 
-    # Debugging output
-    print(f"Peak kWh: {peak_kwh}")
-    print(f"Covered kWh: {covered_kwh}, Uncovered kWh: {uncovered_kwh}")
-    print(f"Covered Cost: {covered_cost}, Uncovered Cost: {uncovered_cost}")
-    print(f"New Peak Cost: {new_peak_cost}")
-    print(f"New Bill: {new_bill}, Savings: {savings}")
+    # Debugging Outputs
+    print(f"Monthly Bill: ${monthly_bill}")
+    print(f"Peak Cost: ${peak_cost}, Off-Peak Cost: ${off_peak_cost}")
+    print(f"Peak kWh: {peak_kwh}, Covered kWh: {covered_kwh}, Uncovered kWh: {uncovered_kwh}")
+    print(f"Covered Cost: ${covered_cost}, Uncovered Cost: ${uncovered_cost}")
+    print(f"New Bill: ${new_bill}, Savings: ${savings}")
 
-    # Battery warning
+    # Warning for uncovered kWh
     if uncovered_kwh > 0:
         st.warning(f"{uncovered_kwh:.2f} kWh will be billed at the peak rate. Consider adding more batteries.")
 
