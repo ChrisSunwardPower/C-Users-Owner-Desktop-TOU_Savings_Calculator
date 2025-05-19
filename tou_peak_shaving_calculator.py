@@ -59,4 +59,10 @@ st.set_page_config(page_title='TOU Savings Calculator', layout='centered')
 st.title('TOU Peak Shaving Savings Calculator')
 
 monthly_bill = st.number_input('Monthly Bill ($)', min_value=0.0, value=200.0, step=10.0)
-provider = st.selectbox('Selec
+provider = st.selectbox('Select Utility Provider', ['PGE', 'Pacific Power'])t Utility Provider', ['PGE', 'Pacific Power'])
+battery_units = st.selectbox('Number of Batteries', [1, 2, 3, 4, 5])
+
+if st.button('Calculate Savings'):
+    savings, annual, ten_year, fifteen_year = calculate_savings(monthly_bill, provider, battery_units)
+    st.subheader('Savings Breakdown')
+    st.write(f"Monthly: ${savings}, Annual: ${annual}, 10-Year: ${ten_year}, 15-Year: ${fifteen_year}")
