@@ -14,7 +14,7 @@ def calculate_savings(monthly_bill, provider, battery_units):
     peak_rate = rates['peak_rate']
     off_peak_rate = rates['off_peak_rate']
 
-    # Calculate Peak and Off-Peak Costs
+    # Bill breakdown
     peak_cost = monthly_bill * 0.3
     off_peak_cost = monthly_bill * 0.7
 
@@ -31,18 +31,19 @@ def calculate_savings(monthly_bill, provider, battery_units):
     uncovered_cost = uncovered_kwh * peak_rate
 
     # Calculate New Bill
-    new_bill = off_peak_cost + covered_cost + uncovered_cost
+    new_peak_cost = covered_cost + uncovered_cost
+    new_bill = off_peak_cost + new_peak_cost
 
     # Calculate Savings
-    savings = monthly_bill - new_bill
+    savings = max(0, monthly_bill - new_bill)
 
     # Debugging Outputs
-    print(f"Monthly Bill: {monthly_bill}")
-    print(f"Peak kWh: {peak_kwh}, Covered kWh: {covered_kwh}, Uncovered kWh: {uncovered_kwh}")
-    print(f"Covered Cost: {covered_cost}, Uncovered Cost: {uncovered_cost}")
-    print(f"New Bill: {new_bill}, Savings: {savings}")
+    print(f"Peak kWh: {peak_kwh}")
+    print(f"Covered kWh: {covered_kwh}, Uncovered kWh: {uncovered_kwh}")
+    print(f"Covered Cost: ${covered_cost}, Uncovered Cost: ${uncovered_cost}")
+    print(f"New Bill: ${new_bill}, Savings: ${savings}")
 
-    # Warning for uncovered kWh
+    # Battery Warning
     if uncovered_kwh > 0:
         st.warning(f"{uncovered_kwh:.2f} kWh will be billed at the peak rate. Consider adding more batteries.")
 
