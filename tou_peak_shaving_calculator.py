@@ -9,17 +9,27 @@ def calculate_savings(monthly_bill, provider, battery_units):
     peak_cost, off_peak_cost = monthly_bill * 0.3, monthly_bill * 0.7
     peak_kwh = peak_cost / peak_rate
     total_battery_capacity = battery_units * BATTERY_CAPACITY_KWH
+
     covered_kwh = min(peak_kwh, total_battery_capacity)
     uncovered_kwh = max(0, peak_kwh - total_battery_capacity)
-    new_peak_cost = (covered_kwh * off_peak_rate) + (uncovered_kwh * peak_rate)
+
+    # New peak cost based on covered and uncovered kWh
+    covered_cost = covered_kwh * off_peak_rate
+    uncovered_cost = uncovered_kwh * peak_rate
+    new_peak_cost = covered_cost + uncovered_cost
+
+    # New bill calculation
     new_bill = off_peak_cost + new_peak_cost
     savings = max(0, monthly_bill - new_bill)
+
     if uncovered_kwh > 0:
-        st.warning(f"⚡ {uncovered_kwh:.2f} kWh will be billed at the peak rate. Consider adding more batteries.")
+        st.warning(f"{uncovered_kwh:.2f} kWh will be billed at the peak rate. Consider adding more batteries.")
+
     return round(savings, 2), round(savings * 12, 2), round(savings * 120, 2), round(savings * 180, 2)
 
 st.set_page_config(page_title='TOU Savings Calculator', layout='centered')
 st.title('TOU Peak Shaving Savings Calculator')
+
 monthly_bill = st.number_input('Monthly Bill ($)', min_value=0.0, value=200.0, step=10.0)
 provider = st.selectbox('Select Utility Provider', ['PGE', 'Pacific Power'])
 battery_units = st.selectbox('Number of Batteries', [1, 2, 3, 4, 5])
