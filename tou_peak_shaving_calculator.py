@@ -53,59 +53,16 @@ def calculate_savings(monthly_bill, provider, battery_type, battery_units):
         # Portion covered by battery at off-peak rate
         covered_kwh = battery_coverage_kwh
         remaining_peak_kwh = peak_kwh - covered_kwh
+        
+        # Cost with battery
         cost_with_battery = (remaining_peak_kwh * peak_rate) + (off_peak_kwh * off_peak_rate) + (covered_kwh * off_peak_rate)
+
+        # Display warning
         st.warning("Battery capacity insufficient to fully cover peak usage. Remaining peak usage billed at peak rate.")
     else:
         # Full coverage by battery
         cost_with_battery = (remaining_peak_kwh * peak_rate) + (off_peak_kwh * off_peak_rate) + (battery_coverage_kwh * off_peak_rate)
 
-    # Adjust savings if battery does not fully cover peak usage
-    if battery_coverage_kwh < peak_kwh:
-        st.warning(f"Battery capacity insufficient to fully cover peak usage. Remaining peak usage billed at peak rate.")
-
-    # Savings calculations
+    # Calculate savings
     daily_savings = cost_without_battery - cost_with_battery
     monthly_savings = daily_savings * 30
-    yearly_savings = monthly_savings * 12
-    ten_year_savings = yearly_savings * 10
-    fifteen_year_savings = yearly_savings * 15
-
-    return (
-        round(monthly_savings, 2),
-        round(yearly_savings, 2),
-        round(ten_year_savings, 2),
-        round(fifteen_year_savings, 2),
-        round(max_bill, 2),
-        battery_power,
-        battery_peak,
-        battery_storage
-    )
-
-# Streamlit UI
-st.set_page_config(page_title='TOU Peak Shaving Savings Calculator', layout='centered')
-st.title('Time of Use (TOU) Peak Shaving Savings Calculator')
-
-st.header('Input Parameters')
-monthly_bill = st.number_input('Monthly Bill ($)', min_value=0.0, value=200.0, step=10.0)
-provider = st.selectbox('Select Utility Provider', ['PGE', 'Pacific Power'])
-battery_type = st.selectbox('Select Battery Type', ['FranklinWH aPower 2', 'Tesla Powerwall 2'])
-battery_units = st.selectbox('Number of Batteries', [1, 2, 3, 4, 5])
-
-if st.button('Calculate Savings'):
-    monthly_savings, yearly_savings, ten_year_savings, fifteen_year_savings, max_bill, battery_power, battery_peak, battery_storage = calculate_savings(
-        monthly_bill, provider, battery_type, battery_units)
-
-    st.success(f"Monthly Savings: ${monthly_savings}")
-    st.success(f"Yearly Savings: ${yearly_savings}")
-    st.success(f"10-Year Savings: ${ten_year_savings}")
-    st.success(f"15-Year Savings: ${fifteen_year_savings}")
-
-    st.info(f"Total Battery Power Output: {battery_power} kW continuous, {battery_peak} kW peak")
-    st.info(f"Total Battery Storage Capacity: {battery_storage} kWh")
-
-    if monthly_bill > max_bill:
-        st.warning(f"⚡ Warning: Your bill exceeds the battery capacity of {battery_units} {battery_type}(s). Consider adding more batteries to fully offset peak usage.")
-else:
-    st.info('Enter the values and click "Calculate Savings" to see the result.')
-
-st.write('Developed to help customers assess the financial benefits of peak load shaving using battery storage.')
