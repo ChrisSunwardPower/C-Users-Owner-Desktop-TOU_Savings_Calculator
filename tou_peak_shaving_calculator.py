@@ -45,6 +45,10 @@ def calculate_savings(monthly_bill, provider, battery_type, battery_units):
 
     cost_with_battery = battery_covered_cost + uncovered_peak_cost + off_peak_cost
 
+    # Debug Output
+    print(f"Remaining Peak kWh: {remaining_peak_kwh}")
+    print(f"Uncovered Cost: {remaining_peak_kwh * peak_rate}")
+
     # Adjust savings for uncovered peak usage
     uncovered_cost = remaining_peak_kwh * peak_rate
     adjusted_monthly_savings = (cost_without_battery - cost_with_battery) - uncovered_cost
@@ -56,6 +60,9 @@ def calculate_savings(monthly_bill, provider, battery_type, battery_units):
     yearly_savings = adjusted_monthly_savings * 12
     ten_year_savings = yearly_savings * 10
     fifteen_year_savings = yearly_savings * 15
+
+    print(f"Adjusted Monthly Savings: {adjusted_monthly_savings}")
+    print(f"Adjusted Yearly Savings: {yearly_savings}")
 
     return (
         round(adjusted_monthly_savings, 2),
